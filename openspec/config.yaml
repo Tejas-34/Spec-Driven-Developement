@@ -1,0 +1,87 @@
+schema: spec-driven
+
+# Project context (optional)
+# This is shown to AI when creating artifacts.
+# Add your tech stack, conventions, style guides, domain knowledge, etc.
+context: |
+  
+  Project Name: FocusSprint
+  
+  Type: Full-stack web application for productivity and timed focus sprints.
+  
+  Domain:
+  - Productivity Tools
+  - Education Technology (EdTech)
+  - Interview Preparation
+  - Focus & Distraction Management
+  
+  Target Audience:
+  - Students preparing for exams
+  - Candidates preparing for interviews
+  - Anyone needing timed focus sessions
+  - Users practicing Deep Work
+  
+  Key Features:
+  - Live Focus Timer with sound cues
+  - Distraction tracking and logging
+  - Post-session reflections and notes
+  - Analytics dashboards
+  - Streak tracking
+  - Dark mode (futuristic, immersive theme)
+  
+  Tech Stack:
+  - Backend: Python 3.x, Flask Framework
+  - Database: SQLite with SQLAlchemy ORM
+  - Frontend: HTML5, CSS3 (modern, glassmorphism style), JavaScript
+  - Charting Library: Chart.js
+  - Authentication: Flask-Login, password hashing
+  
+  Project Structure:
+  - Blueprint-based Flask application
+  - Separate directories for:
+    - templates
+    - static (CSS, JS, assets, sounds)
+    - models (database)
+    - routes (blueprints)
+  
+  Key Flows:
+  1. User authentication (register/login)
+  2. Create focus session with task description
+  3. Start 25-minute countdown timer
+  4. Log distractions during session
+  5. Save session with notes and productivity score
+  6. View analytics and history
+  
+  UI/UX Requirements:
+  - Modern, futuristic dark theme
+  - Responsive design (desktop-first approach)
+  - Clean, clutter-free interface
+  - Subtle animations and transitions
+  - Sound cues for start/stop/break
+  
+  Data Requirements:
+  - Users table: id, username, email, password_hash, created_at
+  - Sessions table: id, user_id, task_name, start_time, end_time, duration, distractions_count, status, notes, productivity_score
+  - Streaks table: user_id, streak_count, last_updated
+  
+  Important Notes:
+  - All user data must be stored securely in SQLite
+  - No external API dependencies for core functionality
+  - Offline-first design (no requirement for internet connection)
+  - Privacy-focused (local data storage)
+  
+  Constraints:
+  - Must use Python Flask framework
+  - Must use SQLite for database
+  - Must be able to run locally on user's machine
+  - No third-party login providers required
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always include a "Non-goals" section
+#     tasks:
+#       - Break tasks into chunks of max 2 hours

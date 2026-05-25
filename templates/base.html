@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}FocusSprint{% endblock %}</title>
+    <!-- Google Fonts Outfit & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Main Style sheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="dark-mode">
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        {% if current_user.is_authenticated %}
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <i class="fa-solid fa-bolt brand-icon"></i>
+                <span class="brand-text">FocusSprint</span>
+            </div>
+            
+            <div class="user-card-mini">
+                <div class="user-avatar">
+                    <i class="fa-solid fa-user-astronaut"></i>
+                </div>
+                <div class="user-info">
+                    <span class="user-name">{{ current_user.username }}</span>
+                    <span class="user-streak">
+                        <i class="fa-solid fa-fire text-orange"></i> {{ current_user.streak }} day streak
+                    </span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="{{ url_for('dashboard.home') }}" class="nav-item {% if request.endpoint == 'dashboard.home' %}active{% endif %}">
+                    <i class="fa-solid fa-chart-pie nav-icon"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{{ url_for('session.start_session') }}" class="nav-item {% if request.endpoint == 'session.start_session' or request.endpoint == 'session.active_timer' %}active{% endif %}">
+                    <i class="fa-solid fa-stopwatch nav-icon"></i>
+                    <span>Focus Session</span>
+                </a>
+                <a href="{{ url_for('history.view_history') }}" class="nav-item {% if request.endpoint == 'history.view_history' %}active{% endif %}">
+                    <i class="fa-solid fa-clock-rotate-left nav-icon"></i>
+                    <span>History</span>
+                </a>
+                <a href="{{ url_for('analytics.view_analytics') }}" class="nav-item {% if request.endpoint == 'analytics.view_analytics' %}active{% endif %}">
+                    <i class="fa-solid fa-chart-line nav-icon"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="{{ url_for('dashboard.settings') }}" class="nav-item {% if request.endpoint == 'dashboard.settings' %}active{% endif %}">
+                    <i class="fa-solid fa-gears nav-icon"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button id="theme-toggle-btn" class="theme-toggle-btn" title="Toggle Light/Dark Theme">
+                    <i class="fa-solid fa-moon"></i> <span>Dark Mode</span>
+                </button>
+                <a href="{{ url_for('auth.logout') }}" class="logout-btn">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+        
+        <!-- Mobile Header Navigation -->
+        <header class="mobile-header">
+            <div class="sidebar-brand">
+                <i class="fa-solid fa-bolt brand-icon"></i>
+                <span class="brand-text">FocusSprint</span>
+            </div>
+            <button class="mobile-menu-toggle" id="mobile-menu-toggle">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </header>
+        
+        <!-- Mobile Sidebar Overlay Drawer -->
+        <div class="mobile-menu-drawer" id="mobile-menu-drawer">
+            <div class="drawer-header">
+                <span class="brand-text"><i class="fa-solid fa-bolt text-purple"></i> FocusSprint</span>
+                <button class="drawer-close" id="drawer-close"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="drawer-user-info">
+                <span class="user-name">{{ current_user.username }}</span>
+                <span class="user-streak"><i class="fa-solid fa-fire text-orange"></i> {{ current_user.streak }} day streak</span>
+            </div>
+            <nav class="drawer-nav">
+                <a href="{{ url_for('dashboard.home') }}"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                <a href="{{ url_for('session.start_session') }}"><i class="fa-solid fa-stopwatch"></i> Focus Session</a>
+                <a href="{{ url_for('history.view_history') }}"><i class="fa-solid fa-clock-rotate-left"></i> History</a>
+                <a href="{{ url_for('analytics.view_analytics') }}"><i class="fa-solid fa-chart-line"></i> Analytics</a>
+                <a href="{{ url_for('dashboard.settings') }}"><i class="fa-solid fa-gears"></i> Settings</a>
+                <a href="{{ url_for('auth.logout') }}"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
+            </nav>
+            <div class="drawer-footer">
+                <button id="theme-toggle-btn-mobile" class="theme-toggle-btn"><i class="fa-solid fa-moon"></i> Toggle Theme</button>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Main Viewport Content Area -->
+        <main class="main-content {% if not current_user.is_authenticated %}full-width{% endif %}">
+            
+            <!-- Toast notification messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="alert-container">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category if category != 'error' else 'danger' }}">
+                                <i class="fa-solid {% if category == 'success' %}fa-circle-check{% elif category == 'danger' or category == 'error' %}fa-circle-exclamation{% else %}fa-circle-info{% endif %} alert-icon"></i>
+                                <span class="alert-message">{{ message }}</span>
+                                <button class="alert-close-btn" onclick="this.parentElement.remove();">&times;</button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <div class="content-body">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Main JavaScript Logic -->
+    <script>
+        // Theme switcher persistence logic
+        const bodyEl = document.body;
+        const themeToggleButtons = document.querySelectorAll('#theme-toggle-btn, #theme-toggle-btn-mobile');
+        
+        // Load initial theme from LocalStorage
+        const savedTheme = localStorage.getItem('focus-theme');
+        if (savedTheme === 'light') {
+            bodyEl.classList.remove('dark-mode');
+            bodyEl.classList.add('light-mode');
+            updateToggleButtons(true);
+        } else {
+            bodyEl.classList.remove('light-mode');
+            bodyEl.classList.add('dark-mode');
+            updateToggleButtons(false);
+        }
+        
+        // Add click listener
+        themeToggleButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (bodyEl.classList.contains('dark-mode')) {
+                    bodyEl.classList.remove('dark-mode');
+                    bodyEl.classList.add('light-mode');
+                    localStorage.setItem('focus-theme', 'light');
+                    updateToggleButtons(true);
+                } else {
+                    bodyEl.classList.remove('light-mode');
+                    bodyEl.classList.add('dark-mode');
+                    localStorage.setItem('focus-theme', 'dark');
+                    updateToggleButtons(false);
+                }
+            });
+        });
+        
+        function updateToggleButtons(isLight) {
+            themeToggleButtons.forEach(btn => {
+                const icon = btn.querySelector('i');
+                const textSpan = btn.querySelector('span');
+                if (isLight) {
+                    if (icon) icon.className = 'fa-solid fa-sun text-yellow';
+                    if (textSpan) textSpan.innerText = 'Light Mode';
+                } else {
+                    if (icon) icon.className = 'fa-solid fa-moon';
+                    if (textSpan) textSpan.innerText = 'Dark Mode';
+                }
+            });
+        }
+
+        // Mobile Menu Drawer Logic
+        const menuToggle = document.getElementById('mobile-menu-toggle');
+        const menuDrawer = document.getElementById('mobile-menu-drawer');
+        const drawerClose = document.getElementById('drawer-close');
+
+        if (menuToggle && menuDrawer && drawerClose) {
+            menuToggle.addEventListener('click', () => {
+                menuDrawer.classList.add('open');
+            });
+            drawerClose.addEventListener('click', () => {
+                menuDrawer.classList.remove('open');
+            });
+            // Close if clicking outside
+            document.addEventListener('click', (e) => {
+                if (!menuDrawer.contains(e.target) && !menuToggle.contains(e.target) && menuDrawer.classList.contains('open')) {
+                    menuDrawer.classList.remove('open');
+                }
+            });
+        }
+        
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                alert.style.opacity = '0';
+                alert.style.transition = 'opacity 0.5s ease';
+                setTimeout(() => alert.remove(), 500);
+            });
+        }, 5000);
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

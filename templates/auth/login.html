@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Log In - FocusSprint{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card glass-panel">
+        <div class="auth-header">
+            <i class="fa-solid fa-bolt auth-logo-icon"></i>
+            <h2>Welcome Back</h2>
+            <p class="auth-subtitle">Resume your focus blocks and build your daily streaks</p>
+        </div>
+        
+        <form action="{{ url_for('auth.login') }}" method="POST" class="auth-form">
+            <div class="form-group">
+                <label for="email"><i class="fa-solid fa-envelope"></i> Email Address</label>
+                <input type="email" id="email" name="email" class="form-control" placeholder="Enter your registered email" required autocomplete="on">
+            </div>
+            
+            <div class="form-group">
+                <label for="password"><i class="fa-solid fa-lock"></i> Password</label>
+                <input type="password" id="password" name="password" class="form-control" placeholder="Enter your secure password" required>
+            </div>
+            
+            <div class="form-row">
+                <label class="checkbox-container">
+                    <input type="checkbox" name="remember" checked>
+                    <span class="checkmark"></span>
+                    Remember Me
+                </label>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-block">
+                <span>Enter Dashboard</span> <i class="fa-solid fa-arrow-right-to-bracket"></i>
+            </button>
+        </form>
+        
+        <div class="auth-footer">
+            <p>Don't have an account? <a href="{{ url_for('auth.register') }}" class="auth-link">Register Here</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

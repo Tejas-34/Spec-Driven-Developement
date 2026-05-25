@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}FocusSprint - Elevate Your Productivity{% endblock %}
+
+{% block content %}
+<div class="landing-container">
+    <div class="landing-hero">
+        <div class="hero-content">
+            <div class="badge-glow"><i class="fa-solid fa-fire text-orange"></i> Peak Performance Tool</div>
+            <h1 class="hero-title">Master Your Focus.<br><span class="text-glow">Sprint Your Goals.</span></h1>
+            <p class="hero-subtitle">
+                Ditch standard calendars and boring checklists. FocusSprint is a futuristic productivity hub designed specifically for deep study sessions, interview prep, and distraction combat.
+            </p>
+            <div class="hero-buttons">
+                <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">
+                    <span>Get Started Free</span> <i class="fa-solid fa-chevron-right animate-bounce-right"></i>
+                </a>
+                <a href="{{ url_for('auth.login') }}" class="btn btn-secondary btn-lg">
+                    <span>Resume Session</span> <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                </a>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="glass-timer-preview">
+                <div class="timer-ring-dummy">
+                    <svg class="progress-ring-svg" width="220" height="220">
+                        <circle class="progress-ring-circle-bg" stroke="#1b1c31" stroke-width="12" fill="transparent" r="95" cx="110" cy="110"/>
+                        <circle class="progress-ring-circle-active" stroke="url(#cyan-purple-grad)" stroke-width="12" stroke-dasharray="596.9" stroke-dashoffset="180" fill="transparent" r="95" cx="110" cy="110"/>
+                        <defs>
+                            <linearGradient id="cyan-purple-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#8be9fd" />
+                                <stop offset="100%" stop-color="#bd93f9" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <div class="timer-preview-text">
+                        <span class="timer-time">25:00</span>
+                        <span class="timer-label">Focus Block</span>
+                    </div>
+                </div>
+                <div class="distraction-pill-dummy animate-pulse">
+                    <i class="fa-solid fa-triangle-exclamation text-pink"></i> <span>2 Distractions logged</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feature Grid -->
+    <section class="landing-features">
+        <div class="section-header text-center">
+            <h2>Engage in Cognitive Sprints</h2>
+            <p class="section-subtitle">Spec-designed workflows to defeat short attention spans</p>
+        </div>
+        
+        <div class="features-grid">
+            <div class="feature-card glass-panel">
+                <div class="feature-icon bg-purple-glow"><i class="fa-solid fa-stopwatch"></i></div>
+                <h3>Visual Focus Timer</h3>
+                <p>Smooth SVG circular countdown, custom study durations, and local storage recovery keep your session perfectly synchronized.</p>
+            </div>
+            
+            <div class="feature-card glass-panel">
+                <div class="feature-icon bg-cyan-glow"><i class="fa-solid fa-bug"></i></div>
+                <h3>Distraction Logger</h3>
+                <p>Log phone checks, tab switches, and internal mind-wandering in a single click to visually evaluate attention leakages.</p>
+            </div>
+            
+            <div class="feature-card glass-panel">
+                <div class="feature-icon bg-pink-glow"><i class="fa-solid fa-graduation-cap"></i></div>
+                <h3>Post-Session Reflection</h3>
+                <p>Review what was learned, capture immediate revision blocks, and document mistakes to accelerate learning recall.</p>
+            </div>
+            
+            <div class="feature-card glass-panel">
+                <div class="feature-icon bg-orange-glow"><i class="fa-solid fa-fire"></i></div>
+                <h3>Streak System</h3>
+                <p>Complete at least one focus session daily to protect and build your streak. Gamify your daily learning momentum.</p>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - FocusSprint{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+    <!-- Top Greeting Header -->
+    <header class="dashboard-header glass-panel">
+        <div class="greeting-info">
+            <h1>Stay Focused, <span class="text-glow">{{ current_user.username }}</span></h1>
+            <p class="greeting-quote">
+                <i class="fa-solid fa-quote-left quote-icon"></i>
+                <span class="quote-text">"{{ quote.text }}"</span>
+                <span class="quote-author">— {{ quote.author }}</span>
+            </p>
+        </div>
+        <div class="header-action">
+            <a href="{{ url_for('session.start_session') }}" class="btn btn-primary">
+                <i class="fa-solid fa-play"></i> <span>Start New Sprint</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Metrics Stats Grid -->
+    <div class="stats-grid">
+        <div class="stat-card glass-panel border-cyan">
+            <div class="stat-icon icon-cyan"><i class="fa-solid fa-stopwatch"></i></div>
+            <div class="stat-details">
+                <span class="stat-value">{{ today_focus_time }} min</span>
+                <span class="stat-label">Today's Focus Time</span>
+            </div>
+        </div>
+        
+        <div class="stat-card glass-panel border-orange">
+            <div class="stat-icon icon-orange"><i class="fa-solid fa-fire animate-pulse"></i></div>
+            <div class="stat-details">
+                <span class="stat-value">{{ current_user.streak }} days</span>
+                <span class="stat-label">Current Streak</span>
+            </div>
+        </div>
+        
+        <div class="stat-card glass-panel border-purple">
+            <div class="stat-icon icon-purple"><i class="fa-solid fa-circle-check"></i></div>
+            <div class="stat-details">
+                <span class="stat-value">{{ total_completed }} block(s)</span>
+                <span class="stat-label">Total Completed</span>
+            </div>
+        </div>
+        
+        <div class="stat-card glass-panel border-pink">
+            <div class="stat-icon icon-pink"><i class="fa-solid fa-bolt"></i></div>
+            <div class="stat-details">
+                <span class="stat-value">{{ avg_score }}</span>
+                <span class="stat-label">Productivity Rating</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard Two-Column Segment -->
+    <div class="dashboard-body-grid">
+        
+        <!-- Left Column: Recent Focus Logs -->
+        <div class="dashboard-main-col glass-panel">
+            <div class="col-header">
+                <h2><i class="fa-solid fa-clock-rotate-left header-icon text-purple"></i> Recent Sprints</h2>
+                <a href="{{ url_for('history.view_history') }}" class="header-link">View All History <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+            
+            {% if recent_sessions %}
+            <div class="table-responsive">
+                <table class="dashboard-table">
+                    <thead>
+                        <tr>
+                            <th>Task Name</th>
+                            <th>Category</th>
+                            <th>Duration</th>
+                            <th>Distractions</th>
+                            <th>Status</th>
+                            <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for session in recent_sessions %}
+                        <tr>
+                            <td class="task-title-cell">
+                                <span class="task-circle-indicator bg-{{ session.category.lower() if session.category.lower() in ['study', 'coding', 'revision', 'design'] else 'other' }}"></span>
+                                {{ session.title }}
+                            </td>
+                            <td><span class="badge badge-category">{{ session.category }}</span></td>
+                            <td>{{ session.duration }} mins</td>
+                            <td>
+                                <span class="distraction-indicator {% if session.distractions > 3 %}text-danger font-bold{% elif session.distractions > 0 %}text-warning{% else %}text-muted{% endif %}">
+                                    <i class="fa-solid fa-phone-slash"></i> {{ session.distractions }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="status-pill status-{{ session.status }}">
+                                    {{ session.status.capitalize() }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="score-badge {% if session.score and session.score >= 20 %}score-high{% elif session.score and session.score >= 10 %}score-mid{% elif session.score %}score-low{% else %}score-none{% endif %}">
+                                    {{ session.score if session.score is not none else 'N/A' }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon"><i class="fa-solid fa-sheet-plastic"></i></div>
+                <h3>No sessions logged yet</h3>
+                <p>Start a new focus timer block and build your learning history!</p>
+                <a href="{{ url_for('session.start_session') }}" class="btn btn-secondary">Initialize First Session</a>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Right Column: Quick Start Form & Weekly Mini Chart -->
+        <aside class="dashboard-side-col">
+            <div class="glass-panel side-form-panel">
+                <div class="col-header">
+                    <h2><i class="fa-solid fa-stopwatch-20 header-icon text-cyan"></i> Quick Setup</h2>
+                </div>
+                <form action="{{ url_for('session.start_session') }}" method="POST" class="quick-form">
+                    <div class="form-group">
+                        <label for="title"><i class="fa-solid fa-t"></i> Task Name</label>
+                        <input type="text" id="title" name="title" class="form-control" placeholder="e.g., Coding binary tree specs" required autocomplete="off">
+                    </div>
+                    
+                    <div class="form-group-row">
+                        <div class="form-group">
+                            <label for="category"><i class="fa-solid fa-tags"></i> Category</label>
+                            <select id="category" name="category" class="form-control" required>
+                                <option value="Study">Study</option>
+                                <option value="Coding" selected>Coding</option>
+                                <option value="Revision">Revision</option>
+                                <option value="Design">Design</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="duration"><i class="fa-solid fa-clock"></i> Duration</label>
+                            <select id="duration" name="duration" class="form-control" required>
+                                <option value="25">25 mins (Pomodoro)</option>
+                                <option value="45">45 mins</option>
+                                <option value="60">60 mins</option>
+                                <option value="custom">Custom</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Dynamic custom minutes input -->
+                    <div class="form-group d-none" id="custom-minutes-container">
+                        <label for="custom_minutes"><i class="fa-solid fa-stopwatch text-cyan"></i> Custom Minutes</label>
+                        <input type="number" id="custom_minutes" name="custom_minutes" class="form-control" min="1" max="180" value="30">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description"><i class="fa-solid fa-align-left"></i> Session Goal</label>
+                        <textarea id="description" name="description" class="form-control" rows="2" placeholder="Write a specific goal for this block..."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fa-solid fa-stopwatch"></i> Launch Focus Timer
+                    </button>
+                </form>
+            </div>
+            
+            <div class="glass-panel mini-chart-panel border-cyan">
+                <div class="col-header">
+                    <h2><i class="fa-solid fa-chart-simple header-icon text-pink"></i> Weekly Trend</h2>
+                </div>
+                <div class="mini-chart-container">
+                    <canvas id="mini-dashboard-chart"></canvas>
+                </div>
+            </div>
+        </aside>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Handle Custom minutes selection in quick form
+    const durationSelect = document.getElementById('duration');
+    const customMinutesContainer = document.getElementById('custom-minutes-container');
+    
+    if (durationSelect && customMinutesContainer) {
+        durationSelect.addEventListener('change', (e) => {
+            if (e.target.value === 'custom') {
+                customMinutesContainer.classList.remove('d-none');
+                document.getElementById('custom_minutes').setAttribute('required', 'true');
+            } else {
+                customMinutesContainer.classList.add('d-none');
+                document.getElementById('custom_minutes').removeAttribute('required');
+            }
+        });
+    }
+
+    // Load mini-chart with fetch request to populate weekly focus hours
+    document.addEventListener('DOMContentLoaded', () => {
+        fetch('/analytics/data')
+            .then(res => {
+                if (!res.ok) throw new Error();
+                return res.json();
+            })
+            .then(data => {
+                const ctx = document.getElementById('mini-dashboard-chart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.weekly_labels || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [{
+                            label: 'Focus Hours',
+                            data: data.weekly_hours || [0, 0, 0, 0, 0, 0, 0],
+                            backgroundColor: 'rgba(189, 147, 249, 0.45)',
+                            borderColor: '#bd93f9',
+                            borderWidth: 2,
+                            borderRadius: 6,
+                            hoverBackgroundColor: 'rgba(139, 233, 253, 0.85)',
+                            hoverBorderColor: '#8be9fd'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                                ticks: { color: '#6272a4', font: { size: 9 } }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { color: '#6272a4', font: { size: 9 } }
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(() => {
+                // Fallback dummy chart
+                const ctx = document.getElementById('mini-dashboard-chart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [{
+                            data: [1.2, 2.5, 0, 4.1, 1.8, 0, 0.5],
+                            backgroundColor: 'rgba(189, 147, 249, 0.2)',
+                            borderColor: '#bd93f9',
+                            borderWidth: 1.5,
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { grid: { display: false }, ticks: { display: false } },
+                            x: { grid: { display: false }, ticks: { color: '#6272a4', font: { size: 8 } } }
+                        }
+                    }
+                });
+            });
+    });
+</script>
+{% endblock %}

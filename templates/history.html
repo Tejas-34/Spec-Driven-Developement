@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+
+{% block title %}Session History - FocusSprint{% endblock %}
+
+{% block content %}
+<div class="history-wrapper">
+    <div class="glass-panel history-container">
+        
+        <!-- Header Actions -->
+        <header class="history-header">
+            <div class="header-titles">
+                <h2><i class="fa-solid fa-clock-rotate-left text-purple"></i> Study Sprint History</h2>
+                <p>Track, evaluate, search, and export all your completed and active focus logs.</p>
+            </div>
+            <div class="header-actions">
+                <a href="{{ url_for('history.export_csv') }}" class="btn btn-secondary border-cyan text-cyan">
+                    <i class="fa-solid fa-file-csv"></i> <span>Export History CSV</span>
+                </a>
+            </div>
+        </header>
+
+        <hr class="divider">
+
+        <!-- Search and Filter Panel -->
+        <div class="filters-row glass-panel-nested">
+            <div class="filter-group filter-search">
+                <label for="search-input"><i class="fa-solid fa-magnifying-glass"></i> Search Sprints</label>
+                <input type="text" id="search-input" class="form-control" placeholder="Search by task title or keywords..." autocomplete="off">
+            </div>
+            
+            <div class="filter-group">
+                <label for="category-filter"><i class="fa-solid fa-filter"></i> Category</label>
+                <select id="category-filter" class="form-control">
+                    <option value="all">All Categories</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat }}">{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="status-filter"><i class="fa-solid fa-circle-info"></i> Status</label>
+                <select id="status-filter" class="form-control">
+                    <option value="all">All Statuses</option>
+                    <option value="completed">Completed</option>
+                    <option value="active">Active</option>
+                    <option value="abandoned">Abandoned</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- History Table -->
+        {% if sessions %}
+        <div class="table-responsive margin-top-lg">
+            <table class="dashboard-table history-table" id="history-data-table">
+                <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Task Name</th>
+                        <th>Category</th>
+                        <th>Duration</th>
+                        <th>Distractions</th>
+                        <th>Status</th>
+                        <th>Productivity Score</th>
+                        <th>Reflection Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for session in sessions %}
+                    <tr class="history-row" 
+                        data-title="{{ session.title.lower() }}" 
+                        data-category="{{ session.category.lower() }}" 
+                        data-status="{{ session.status.lower() }}">
+                        <td>
+                            <span class="text-muted"><i class="fa-regular fa-calendar"></i> {{ session.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                        </td>
+                        <td class="task-title-cell font-medium">{{ session.title }}</td>
+                        <td><span class="badge badge-category">{{ session.category }}</span></td>
+                        <td>{{ session.duration }} mins</td>
+                        <td>
+                            <span class="distraction-indicator {% if session.distractions > 3 %}text-danger font-bold{% elif session.distractions > 0 %}text-warning{% else %}text-muted{% endif %}">
+                                <i class="fa-solid fa-phone-slash"></i> {{ session.distractions }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="status-pill status-{{ session.status }}">
+                                {{ session.status.capitalize() }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="score-badge {% if session.score and session.score >= 20 %}score-high{% elif session.score and session.score >= 10 %}score-mid{% elif session.score %}score-low{% else %}score-none{% endif %}">
+                                {{ session.score if session.score is not none else 'N/A' }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if session.notes_learned or session.notes_mistakes or session.notes_revision %}
+                            <button class="btn btn-tiny btn-secondary border-purple text-purple view-reflection-btn" 
+                                    data-learned="{{ session.notes_learned }}" 
+                                    data-mistakes="{{ session.notes_mistakes }}" 
+                                    data-revision="{{ session.notes_revision }}"
+                                    data-task="{{ session.title }}">
+                                <i class="fa-solid fa-comment-dots"></i> View
+                            </button>
+                            {% else %}
+                            <span class="text-muted italic small">None</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Live Table Results Stats -->
+        <div class="table-results-footer" id="table-results-footer">
+            Showing <strong id="visible-rows-count">{{ sessions|length }}</strong> of {{ sessions|length }} logged sprints.
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon"><i class="fa-solid fa-hourglass-empty animate-pulse"></i></div>
+            <h3>No study blocks saved yet</h3>
+            <p>Your finished study sprints will appear here along with notes, distract counts, and ratings.</p>
+            <a href="{{ url_for('session.start_session') }}" class="btn btn-primary margin-top-md">Start First Session</a>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
+<!-- Translucent Reflection Modal Dialog -->
+<div class="modal-overlay" id="reflection-modal">
+    <div class="glass-panel modal-card">
+        <div class="modal-header">
+            <h3><i class="fa-solid fa-brain text-purple"></i> Reflection Review</h3>
+            <button class="modal-close" id="modal-close-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <h4 class="modal-task-title" id="modal-task-title">Task Title</h4>
+            
+            <div class="reflection-block">
+                <h5><i class="fa-solid fa-check text-cyan"></i> Learnings & Accomplishments</h5>
+                <p id="modal-learned"></p>
+            </div>
+            
+            <div class="reflection-block">
+                <h5><i class="fa-solid fa-circle-exclamation text-pink"></i> Mind Wandering & Distractions</h5>
+                <p id="modal-mistakes"></p>
+            </div>
+            
+            <div class="reflection-block">
+                <h5><i class="fa-solid fa-repeat text-purple"></i> Revision Focus</h5>
+                <p id="modal-revision"></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const searchInput = document.getElementById('search-input');
+        const categoryFilter = document.getElementById('category-filter');
+        const statusFilter = document.getElementById('status-filter');
+        const rows = document.querySelectorAll('.history-row');
+        const visibleCountEl = document.getElementById('visible-rows-count');
+        
+        // Reflection Modal Elements
+        const modal = document.getElementById('reflection-modal');
+        const modalClose = document.getElementById('modal-close-btn');
+        const modalTaskTitle = document.getElementById('modal-task-title');
+        const modalLearned = document.getElementById('modal-learned');
+        const modalMistakes = document.getElementById('modal-mistakes');
+        const modalRevision = document.getElementById('modal-revision');
+        const viewButtons = document.querySelectorAll('.view-reflection-btn');
+
+        // Dynamic Filtering
+        function filterTable() {
+            const query = searchInput.value.toLowerCase().trim();
+            const category = categoryFilter.value.toLowerCase();
+            const status = statusFilter.value.toLowerCase();
+            
+            let visibleCount = 0;
+            
+            rows.forEach(row => {
+                const rowTitle = row.getAttribute('data-title');
+                const rowCat = row.getAttribute('data-category');
+                const rowStatus = row.getAttribute('data-status');
+                
+                const matchesSearch = rowTitle.includes(query);
+                const matchesCat = (category === 'all' || rowCat === category);
+                const matchesStatus = (status === 'all' || rowStatus === status);
+                
+                if (matchesSearch && matchesCat && matchesStatus) {
+                    row.classList.remove('d-none');
+                    visibleCount++;
+                } else {
+                    row.classList.add('d-none');
+                }
+            });
+            
+            if (visibleCountEl) {
+                visibleCountEl.innerText = visibleCount;
+            }
+        }
+        
+        if (searchInput) searchInput.addEventListener('input', filterTable);
+        if (categoryFilter) categoryFilter.addEventListener('change', filterTable);
+        if (statusFilter) statusFilter.addEventListener('change', filterTable);
+        
+        // Modal Trigger Logic
+        viewButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                modalTaskTitle.innerText = btn.getAttribute('data-task');
+                modalLearned.innerText = btn.getAttribute('data-learned') || 'No learning notes recorded.';
+                modalMistakes.innerText = btn.getAttribute('data-mistakes') || 'No distraction notes recorded.';
+                modalRevision.innerText = btn.getAttribute('data-revision') || 'No revision targets recorded.';
+                
+                modal.classList.add('active');
+            });
+        });
+        
+        if (modalClose) {
+            modalClose.addEventListener('click', () => {
+                modal.classList.remove('active');
+            });
+        }
+        
+        // Close modal on background click
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+            }
+        });
+    });
+</script>
+{% endblock %}

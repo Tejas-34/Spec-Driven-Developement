@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics - FocusSprint{% endblock %}
+
+{% block content %}
+<div class="analytics-wrapper">
+    <div class="glass-panel analytics-container">
+        
+        <!-- Header -->
+        <header class="analytics-header">
+            <h2><i class="fa-solid fa-chart-line text-purple"></i> Cognitive & Focus Analytics</h2>
+            <p>Evaluate your focus trends, log performance anomalies, and verify distraction curves.</p>
+        </header>
+
+        <hr class="divider">
+
+        <!-- Charts Segment -->
+        <div class="analytics-charts-grid">
+            
+            <!-- Focus Hours Wave Chart -->
+            <div class="glass-panel chart-card border-cyan">
+                <h3><i class="fa-solid fa-clock text-cyan"></i> Weekly Focus Hours</h3>
+                <p class="chart-subtitle">Sum of completed study block durations over the past 7 days</p>
+                <div class="chart-container">
+                    <canvas id="weekly-hours-chart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Distractions Spikes Bar Chart -->
+            <div class="glass-panel chart-card border-pink">
+                <h3><i class="fa-solid fa-phone-slash text-pink"></i> Mind Wandering & Phone Checks</h3>
+                <p class="chart-subtitle">Accumulated daily distractions during focused blocks</p>
+                <div class="chart-container">
+                    <canvas id="distractions-chart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Productivity Trends Line Chart -->
+            <div class="glass-panel chart-card border-purple full-width-chart">
+                <h3><i class="fa-solid fa-bolt text-purple"></i> Productivity Rating Curve</h3>
+                <p class="chart-subtitle">FocusMinutes - 2 × Distractions index score progression</p>
+                <div class="chart-container-large">
+                    <canvas id="productivity-chart"></canvas>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        fetch('/analytics/data')
+            .then(res => {
+                if (!res.ok) throw new Error();
+                return res.json();
+            })
+            .then(data => {
+                const labels = data.weekly_labels;
+                
+                // Chart 1: Focus Hours (Wave Line Chart)
+                const ctx1 = document.getElementById('weekly-hours-chart').getContext('2d');
+                new Chart(ctx1, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Focus Hours',
+                            data: data.weekly_hours,
+                            borderColor: '#8be9fd',
+                            backgroundColor: 'rgba(139, 233, 253, 0.15)',
+                            fill: true,
+                            tension: 0.4,
+                            borderWidth: 3,
+                            pointBackgroundColor: '#8be9fd',
+                            pointHoverRadius: 7
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#6272a4' } },
+                            x: { grid: { display: false }, ticks: { color: '#6272a4' } }
+                        }
+                    }
+                });
+
+                // Chart 2: Distractions (Bar Chart)
+                const ctx2 = document.getElementById('distractions-chart').getContext('2d');
+                new Chart(ctx2, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Distractions',
+                            data: data.distractions,
+                            backgroundColor: 'rgba(255, 121, 198, 0.65)',
+                            borderColor: '#ff79c6',
+                            borderWidth: 2,
+                            borderRadius: 6,
+                            hoverBackgroundColor: 'rgba(255, 121, 198, 0.95)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#6272a4', stepSize: 1 } },
+                            x: { grid: { display: false }, ticks: { color: '#6272a4' } }
+                        }
+                    }
+                });
+
+                // Chart 3: Productivity Curve (Combined line & grid points)
+                const ctx3 = document.getElementById('productivity-chart').getContext('2d');
+                new Chart(ctx3, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Productivity rating index',
+                            data: data.productivity_scores,
+                            borderColor: '#bd93f9',
+                            backgroundColor: 'rgba(189, 147, 249, 0.1)',
+                            fill: true,
+                            tension: 0.35,
+                            borderWidth: 4,
+                            pointBackgroundColor: '#ff79c6',
+                            pointBorderColor: '#bd93f9',
+                            pointRadius: 6,
+                            pointHoverRadius: 9
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#6272a4' } },
+                            x: { grid: { display: false }, ticks: { color: '#6272a4' } }
+                        }
+                    }
+                });
+            })
+            .catch(err => console.error('Failed to load charts:', err));
+    });
+</script>
+{% endblock %}

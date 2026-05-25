@@ -1,0 +1,345 @@
+{% extends "base.html" %}
+
+{% block title %}Focus Timer - FocusSprint{% endblock %}
+
+{% block content %}
+<div class="active-session-wrapper">
+    <div class="active-session-container">
+        
+        <!-- Left Pane: Focus Task Details -->
+        <div class="glass-panel session-info-card">
+            <div class="session-category-badge">
+                <span class="badge badge-category">{{ session.category }}</span>
+            </div>
+            <h1 class="session-title-text">{{ session.title }}</h1>
+            
+            <div class="session-meta-indicators">
+                <div class="meta-indicator">
+                    <i class="fa-solid fa-hourglass-half text-cyan"></i>
+                    <span>Allocated: <strong>{{ session.duration }} mins</strong></span>
+                </div>
+                <div class="meta-indicator">
+                    <i class="fa-solid fa-calendar-day text-purple"></i>
+                    <span>Started: <strong>{{ session.created_at.strftime('%H:%M') }}</strong></span>
+                </div>
+            </div>
+            
+            <hr class="divider">
+            
+            <!-- Focus guidelines & hotkeys -->
+            <div class="focus-tips-panel">
+                <h3><i class="fa-solid fa-keyboard text-pink"></i> Keyboard Shortcuts</h3>
+                <div class="shortcut-item">
+                    <kbd>S</kbd> <span>Start / Resume Timer</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>P</kbd> <span>Pause Timer</span>
+                </div>
+                <div class="shortcut-item">
+                    <kbd>D</kbd> <span>Log a Distraction</span>
+                </div>
+            </div>
+            
+            <div class="session-abort-footer">
+                <form action="{{ url_for('session.abandon_session', session_id=session.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to abandon this focus session? progress will be lost.');">
+                    <button type="submit" class="btn btn-secondary btn-block text-danger border-danger">
+                        <i class="fa-solid fa-circle-xmark"></i> Abandon Session
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right Pane: Circular Countdown Timer -->
+        <div class="glass-panel session-timer-card text-center">
+            
+            <!-- The Visual Circular Ring Countdown -->
+            <div class="timer-display-container">
+                <svg class="timer-svg" width="280" height="280">
+                    <circle class="timer-ring-bg" stroke="rgba(255, 255, 255, 0.05)" stroke-width="12" fill="transparent" r="125" cx="140" cy="140"/>
+                    <circle id="timer-ring-active" class="timer-ring-active" stroke="url(#active-ring-gradient)" stroke-width="12" stroke-dasharray="785.4" stroke-dashoffset="0" stroke-linecap="round" fill="transparent" r="125" cx="140" cy="140"/>
+                    <defs>
+                        <linearGradient id="active-ring-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#bd93f9" />
+                            <stop offset="100%" stop-color="#ff79c6" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+                
+                <div class="timer-value-overlay">
+                    <span id="countdown-text" class="countdown-value">25:00</span>
+                    <span id="timer-status-label" class="timer-status-label">PAUSED</span>
+                </div>
+            </div>
+
+            <!-- Timer Action Buttons -->
+            <div class="timer-controls">
+                <button id="btn-timer-toggle" class="btn-control btn-play" title="Start/Pause (S / P)">
+                    <i class="fa-solid fa-play"></i>
+                </button>
+                <button id="btn-timer-reset" class="btn-control btn-reset" title="Reset Timer">
+                    <i class="fa-solid fa-arrow-rotate-left"></i>
+                </button>
+            </div>
+
+            <hr class="divider">
+
+            <!-- Distraction Logger Segment -->
+            <div class="distraction-logger-container">
+                <div class="distraction-count-display">
+                    <span class="distraction-label">Distractions Logged:</span>
+                    <span id="distraction-counter" class="distraction-counter">0</span>
+                </div>
+                <button id="btn-log-distraction" class="btn btn-secondary btn-block border-cyan text-cyan">
+                    <i class="fa-solid fa-circle-exclamation text-pink animate-pulse"></i> <span>I Got Distracted (D)</span>
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const sessionId = {{ session.id }};
+    const totalDurationSeconds = {{ session.duration * 60 }};
+    
+    // DOM Elements
+    const countdownText = document.getElementById('countdown-text');
+    const timerStatusLabel = document.getElementById('timer-status-label');
+    const activeCircle = document.getElementById('timer-ring-active');
+    const btnToggle = document.getElementById('btn-timer-toggle');
+    const btnReset = document.getElementById('btn-timer-reset');
+    const distractionCounter = document.getElementById('distraction-counter');
+    const btnDistract = document.getElementById('btn-log-distraction');
+    
+    const circumference = 2 * Math.PI * 125; // radius = 125 => 785.4 px
+    activeCircle.style.strokeDasharray = circumference;
+    
+    // State variables
+    let secondsRemaining = totalDurationSeconds;
+    let isPaused = true;
+    let timerInterval = null;
+    let distractions = 0;
+
+    // AUDIO SYSTEM (Synthesizer Chime via Web Audio API)
+    function playSuccessChime() {
+        try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            
+            // Generate multiple harmonic tones for a warm digital bell chime
+            const playTone = (freq, time, duration, vol) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, time);
+                
+                gain.gain.setValueAtTime(0, time);
+                gain.gain.linearRampToValueAtTime(vol, time + 0.05);
+                gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.start(time);
+                osc.stop(time + duration);
+            };
+            
+            const start = audioCtx.currentTime;
+            // Digital chime chord: C5 (523.25 Hz) -> E5 (659.25 Hz) -> G5 (783.99 Hz) -> C6 (1046.50 Hz)
+            playTone(523.25, start, 1.2, 0.25);
+            playTone(659.25, start + 0.15, 1.0, 0.25);
+            playTone(783.99, start + 0.30, 0.8, 0.25);
+            playTone(1046.50, start + 0.45, 1.5, 0.3);
+            
+        } catch (e) {
+            console.error('Audio synthesizer error:', e);
+        }
+    }
+
+    // STATE SYNCHRONIZATION WITH LOCAL STORAGE
+    function loadTimerState() {
+        const cachedId = localStorage.getItem('focus-session-id');
+        if (cachedId && parseInt(cachedId) === sessionId) {
+            // Restore details
+            secondsRemaining = parseInt(localStorage.getItem('focus-seconds-remaining')) || totalDurationSeconds;
+            isPaused = localStorage.getItem('focus-is-paused') === 'true';
+            distractions = parseInt(localStorage.getItem('focus-distractions')) || 0;
+            distractionCounter.innerText = distractions;
+            
+            if (!isPaused) {
+                // Calculate elapsed time since last reload
+                const lastSync = parseInt(localStorage.getItem('focus-last-sync-time'));
+                if (lastSync) {
+                    const elapsed = Math.floor((Date.now() - lastSync) / 1000);
+                    secondsRemaining = Math.max(0, secondsRemaining - elapsed);
+                }
+                
+                if (secondsRemaining <= 0) {
+                    completeSession();
+                } else {
+                    startTimerTicker();
+                }
+            } else {
+                updateTimerDisplay();
+            }
+        } else {
+            // New session initialization
+            localStorage.setItem('focus-session-id', sessionId);
+            localStorage.setItem('focus-seconds-remaining', secondsRemaining);
+            localStorage.setItem('focus-is-paused', 'true');
+            localStorage.setItem('focus-distractions', '0');
+            localStorage.setItem('focus-last-sync-time', '');
+            updateTimerDisplay();
+        }
+    }
+
+    function saveTimerState() {
+        localStorage.setItem('focus-seconds-remaining', secondsRemaining);
+        localStorage.setItem('focus-is-paused', isPaused);
+        localStorage.setItem('focus-distractions', distractions);
+        localStorage.setItem('focus-last-sync-time', isPaused ? '' : Date.now().toString());
+    }
+
+    function clearCachedState() {
+        localStorage.removeItem('focus-session-id');
+        localStorage.removeItem('focus-seconds-remaining');
+        localStorage.removeItem('focus-is-paused');
+        localStorage.removeItem('focus-distractions');
+        localStorage.removeItem('focus-last-sync-time');
+    }
+
+    // TIMER DISPLAY & PROGRESS RING UPDATE
+    function updateTimerDisplay() {
+        const mins = Math.floor(secondsRemaining / 60);
+        const secs = secondsRemaining % 60;
+        countdownText.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        
+        // Progress ring offset
+        const percentage = secondsRemaining / totalDurationSeconds;
+        const offset = circumference * (1 - percentage);
+        activeCircle.style.strokeDashoffset = offset;
+        
+        // Toggle visual indicators
+        if (isPaused) {
+            timerStatusLabel.innerText = "PAUSED";
+            timerStatusLabel.className = "timer-status-label paused";
+            btnToggle.innerHTML = '<i class="fa-solid fa-play"></i>';
+            btnToggle.className = "btn-control btn-play";
+        } else {
+            timerStatusLabel.innerText = "FOCUSING";
+            timerStatusLabel.className = "timer-status-label active animate-pulse";
+            btnToggle.innerHTML = '<i class="fa-solid fa-pause"></i>';
+            btnToggle.className = "btn-control btn-pause";
+        }
+    }
+
+    // CONTROL TRIGGERS
+    function toggleTimer() {
+        isPaused = !isPaused;
+        if (isPaused) {
+            stopTimerTicker();
+        } else {
+            startTimerTicker();
+        }
+        saveTimerState();
+        updateTimerDisplay();
+    }
+
+    function startTimerTicker() {
+        isPaused = false;
+        clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            if (secondsRemaining > 0) {
+                secondsRemaining--;
+                saveTimerState();
+                updateTimerDisplay();
+            } else {
+                completeSession();
+            }
+        }, 1000);
+    }
+
+    function stopTimerTicker() {
+        isPaused = true;
+        clearInterval(timerInterval);
+    }
+
+    function resetTimer() {
+        if (confirm("Reset countdown? This will pause and reset the timer back to " + (totalDurationSeconds / 60) + " minutes.")) {
+            stopTimerTicker();
+            secondsRemaining = totalDurationSeconds;
+            isPaused = true;
+            saveTimerState();
+            updateTimerDisplay();
+        }
+    }
+
+    // DISTRACTION TRACKER API CALL
+    function triggerDistraction() {
+        // Optimistically increment local counter
+        distractions++;
+        distractionCounter.innerText = distractions;
+        saveTimerState();
+        
+        // Dynamic visual flash effect
+        distractionCounter.classList.add('flash-red');
+        setTimeout(() => distractionCounter.classList.remove('flash-red'), 500);
+
+        // Fetch increment API
+        fetch(`/session/${sessionId}/distract`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                console.log('Distraction logged on db: ' + data.distractions);
+            }
+        })
+        .catch(err => console.error('Database connection error:', err));
+    }
+
+    // COMPLETE FOCUS SESSION
+    function completeSession() {
+        stopTimerTicker();
+        clearCachedState();
+        playSuccessChime();
+        
+        setTimeout(() => {
+            alert("Congratulations! Focus block completed successfully! Proceeding to post-session reflection.");
+            window.location.href = `/session/${sessionId}/reflect`;
+        }, 800);
+    }
+
+    // EVENT LISTENERS
+    btnToggle.addEventListener('click', toggleTimer);
+    btnReset.addEventListener('click', resetTimer);
+    btnDistract.addEventListener('click', triggerDistraction);
+
+    // Keyboard Hotkey Listener
+    document.addEventListener('keydown', (e) => {
+        // Prevent trigger if input fields or textareas are active
+        if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') {
+            return;
+        }
+        
+        const key = e.key.toUpperCase();
+        if (key === 'S') {
+            e.preventDefault();
+            if (isPaused) toggleTimer();
+        } else if (key === 'P') {
+            e.preventDefault();
+            if (!isPaused) toggleTimer();
+        } else if (key === 'D') {
+            e.preventDefault();
+            triggerDistraction();
+        }
+    });
+
+    // LOAD STATE ON INIT
+    window.addEventListener('load', loadTimerState);
+</script>
+{% endblock %}

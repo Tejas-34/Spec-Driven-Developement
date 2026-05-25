@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Session Reflection - FocusSprint{% endblock %}
+
+{% block content %}
+<div class="session-reflect-wrapper">
+    <div class="glass-panel session-reflect-card">
+        
+        <div class="reflect-header text-center">
+            <div class="reflect-success-badge animate-bounce"><i class="fa-solid fa-trophy"></i></div>
+            <h2>Sprint Completed!</h2>
+            <p>You maintained focus for <strong>{{ session.duration }} minutes</strong> with <strong>{{ session.distractions }} distractions</strong>.</p>
+        </div>
+        
+        <hr class="divider">
+        
+        <!-- Live review stats -->
+        <div class="reflect-stats-row">
+            <div class="reflect-stat glass-panel">
+                <span class="reflect-stat-label"><i class="fa-solid fa-clock text-cyan"></i> Minutes</span>
+                <span class="reflect-stat-value">{{ session.duration }} mins</span>
+            </div>
+            
+            <div class="reflect-stat glass-panel">
+                <span class="reflect-stat-label"><i class="fa-solid fa-bell-slash text-pink"></i> Distractions</span>
+                <span class="reflect-stat-value">{{ session.distractions }} logged</span>
+            </div>
+            
+            <div class="reflect-stat glass-panel">
+                <span class="reflect-stat-label"><i class="fa-solid fa-chart-line text-purple"></i> Projected Score</span>
+                <span class="reflect-stat-value">{{ session.duration - (2 * session.distractions) }}</span>
+            </div>
+        </div>
+
+        <!-- Reflection Form -->
+        <form action="{{ url_for('session.reflect', session_id=session.id) }}" method="POST" class="reflect-form">
+            
+            <div class="form-group">
+                <label for="learned"><i class="fa-solid fa-brain text-cyan"></i> What did you learn / accomplish?</label>
+                <textarea id="learned" name="learned" class="form-control" rows="3" placeholder="Identify key insights, solved algorithms, or completed concepts..." required></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="mistakes"><i class="fa-solid fa-triangle-exclamation text-pink"></i> What distracted you / what went wrong?</label>
+                <textarea id="mistakes" name="mistakes" class="form-control" rows="2" placeholder="e.g., Checked phone for messages, background noise, or compiler bugs..." required></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="revision"><i class="fa-solid fa-repeat text-purple"></i> Next revision items / action points</label>
+                <textarea id="revision" name="revision" class="form-control" rows="2" placeholder="Write exactly what needs to be reviewed or finalized next session..." required></textarea>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-block btn-lg">
+                <i class="fa-solid fa-folder-closed"></i> <span>Save Reflection & Finish Sprint</span>
+            </button>
+        </form>
+
+    </div>
+</div>
+{% endblock %}
