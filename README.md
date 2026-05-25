@@ -36,9 +36,9 @@ Path: `static/images/dashboard_page.png`
 Path: `static/images/analytics_page.png`
 ![Analytics Page](static/images/analytics_page.png)
 
-### Register Page
-Path: `static/images/register_page.png`
-![Register Page](static/images/register_page.png)
+### Study History Logs
+Path: `static/images/history_page.png`
+![History Page](static/images/history_page.png)
 
 ---
 
