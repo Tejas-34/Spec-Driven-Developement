@@ -1,0 +1,169 @@
+Build a modern full-stack web application called “FocusSprint” — a productivity and focus tracking app for students and interview preparation.
+
+Tech Stack:
+- Backend: Python Flask
+- Database: SQLite with SQLAlchemy
+- Frontend: HTML, CSS, JavaScript
+- Template Engine: Jinja2
+- Styling: Modern responsive UI with glassmorphism and dark theme
+- Charts: Chart.js
+- Authentication: Flask-Login
+
+Application Goal:
+This is not a normal todo app. The app helps users run focused study/work sessions, track distractions, maintain streaks, and analyze productivity.
+
+Core Features:
+
+1. Authentication System
+- User registration
+- Login/logout
+- Password hashing
+- Session management
+
+2. Dashboard
+Display:
+- Today’s total focus time
+- Current streak
+- Total completed sessions
+- Productivity score
+- Recent sessions
+- Weekly activity chart
+
+3. Create Focus Session
+User can create a session with:
+- Task title
+- Category
+- Duration (25, 45, 60, or custom)
+- Goal/description
+
+4. Live Focus Timer
+Features:
+- Start
+- Pause
+- Resume
+- Reset
+- Circular animated progress bar
+- Bell sound when timer completes
+
+5. Distraction Tracker
+Add a button:
+“I Got Distracted”
+Each click increases distraction count during the session.
+
+6. Session Notes
+User can write:
+- What was learned
+- Mistakes
+- Revision points
+- Reflection after session
+
+7. Productivity Score
+Calculate using:
+Score = FocusMinutes - 2 × Distractions
+
+8. Session History
+Store completed sessions in database and show:
+- Task name
+- Duration
+- Date
+- Distractions
+- Completion status
+- Productivity score
+
+9. Daily Streak System
+If user completes at least one session daily:
+- Streak increases
+- Missing a day resets streak
+
+10. Analytics
+Charts for:
+- Weekly focus hours
+- Daily distractions
+- Productivity trends
+
+11. UI/UX Requirements
+Design should look premium and modern:
+- Dark theme
+- Neon accent colors
+- Glassmorphism cards
+- Smooth animations
+- Responsive for mobile and desktop
+- Sidebar navigation
+- Minimal and clean interface
+
+12. Pages Required
+- Landing Page
+- Login/Register
+- Dashboard
+- Active Session Page
+- Session History
+- Analytics Page
+- Profile Settings
+
+13. Folder Structure
+Use professional Flask structure:
+
+project/
+│
+├── app.py
+├── models.py
+├── routes/
+├── static/
+│   ├── css/
+│   ├── js/
+│   ├── sounds/
+│   └── images/
+│
+├── templates/
+│   ├── base.html
+│   ├── index.html
+│   ├── dashboard.html
+│   ├── session.html
+│   ├── history.html
+│   ├── analytics.html
+│   └── auth/
+│
+└── database.db
+
+14. Backend Requirements
+- Use Flask Blueprints
+- Use SQLAlchemy ORM
+- Use Flask-Login
+- Create proper models and relationships
+- RESTful route structure
+- Flash messages for success/errors
+
+15. Frontend Requirements
+- Vanilla JavaScript only
+- Use fetch() for async requests
+- Timer logic should work smoothly
+- Add loading animations and transitions
+
+16. Additional Features
+- Dark/light mode toggle
+- Motivational quotes API
+- Keyboard shortcuts
+- Export session history as CSV
+- Search and filter sessions
+
+17. Code Quality
+- Clean and modular code
+- Proper comments
+- Reusable components
+- Error handling
+- Mobile responsive
+- Beginner-friendly structure
+
+18. Final Output
+Generate:
+- Complete backend code
+- Complete frontend code
+- Database models
+- CSS styling
+- JavaScript timer logic
+- Sample data
+- Setup instructions
+- requirements.txt
+- README.md
+
+The final application should feel like a premium productivity SaaS product, not a beginner todo app.
