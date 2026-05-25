@@ -18,19 +18,19 @@ FocusSprint is engineered with state-of-the-art modern SaaS UI aesthetics (drawi
 
 ### 1. The Dynamic Dashboard (`/dashboard`)
 Fully responsive layout displaying the flex-configured stats cards, curating real-time focus metrics (`2h 35m`, `8 Days Streak`), curved gradient line charts, motivational quotes, and study sprint timer controls.
-![FocusSprint Dashboard](/Users/tejas/Documents/IITM Workshop HandsOn/Task/vibe_coded_submission/static/images/dashboard_page.png)
+![FocusSprint Dashboard](static/images/dashboard_page.png)
 
 ### 2. High-Contrast Analytics Grid (`/analytics`)
 Displays a symmetric, balanced grid of charts (Weekly focus hours, Daily distractions, and Productivity trend) fitting elegantly into the screen.
-![Analytics Dashboard](/Users/tejas/Documents/IITM Workshop HandsOn/Task/vibe_coded_submission/static/images/analytics_page.png)
+![Analytics Dashboard](static/images/analytics_page.png)
 
 ### 3. Glassmorphic Landing Page (`/`)
 A widescreen aesthetic landing page introducing study sprints, distraction metrics, and consistency locks with visual mock preview cards.
-![Landing Page](/Users/tejas/Documents/IITM Workshop HandsOn/Task/vibe_coded_submission/static/images/landing_page.png)
+![Landing Page](static/images/landing_page.png)
 
 ### 4. Minimalist Register Screen (`/register`)
 Futuristic split-screen registration layout designed with high readability, neon gradient inputs, and micro-focused branding.
-![Register Screen](/Users/tejas/Documents/IITM Workshop HandsOn/Task/vibe_coded_submission/static/images/register_page.png)
+![Register Screen](static/images/register_page.png)
 
 ---
 
