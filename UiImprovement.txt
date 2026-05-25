@@ -1,0 +1,140 @@
+Design a premium futuristic dark-theme productivity dashboard UI for a web application called “FocusSprint”.
+
+The UI style should feel like a modern SaaS product used by developers, students, and creators for deep work and productivity tracking.
+
+Overall Design Style:
+- Dark mode only
+- Futuristic and minimal
+- Clean glassmorphism interface
+- Neon gradient glow effects
+- Soft shadows and blurred backgrounds
+- Modern typography
+- Smooth hover animations
+- Spacious layout with proper padding
+- Professional and premium look
+
+Color Palette:
+- Background: deep navy blue / black gradient
+- Accent colors:
+  - Cyan
+  - Purple
+  - Neon blue
+  - Pink glow
+- Cards should have:
+  - semi-transparent glass effect
+  - subtle borders
+  - blurred background
+  - glowing hover effects
+
+Layout Structure:
+Use a widescreen dashboard layout.
+
+LEFT SIDEBAR:
+- Fixed vertical sidebar
+- App logo at top (“FocusSprint”)
+- Navigation items with icons:
+  - Dashboard
+  - New Session
+  - History
+  - Analytics
+  - Goals
+  - Calendar
+  - Settings
+- Active menu item should glow with cyan neon border
+- User profile card at bottom with logout button
+
+MAIN CONTENT AREA:
+Top Header:
+- Greeting message:
+  “Good evening, Tejas 👋”
+- Small motivational subtitle
+- Search icon
+- Notification icon
+- Dark/light toggle switch
+
+STATS CARDS SECTION:
+Create 4 glowing analytics cards:
+1. Today’s Focus Time
+2. Current Streak
+3. Completed Sessions
+4. Productivity Score
+
+Each card should include:
+- Circular neon icon
+- Large bold number
+- Small improvement text
+- Gradient glow border
+- Hover animation
+
+CHART SECTION:
+Large card showing:
+- Weekly Focus Time graph
+- Smooth line chart
+- Cyan-to-purple glowing gradient line
+- Modern chart styling
+- Dropdown filter at top-right
+
+MOTIVATION CARD:
+Small glowing card with:
+- Inspirational productivity quote
+- Purple ambient lighting
+- Minimal mountain illustration silhouette in background
+
+NEXT SESSION CARD:
+Card containing:
+- Upcoming study session title
+- Category tag
+- Session duration
+- Circular timer/progress ring
+- Large glowing “Start Session” button
+
+RECENT SESSIONS TABLE:
+Modern glassmorphism table showing:
+- Task
+- Duration
+- Distractions
+- Score
+- Date
+
+Rows should have:
+- Hover glow effect
+- Colored score indicators
+- Clean typography
+
+RECENT ACTIVITY PANEL:
+Timeline-style activity list showing:
+- Completed study sessions
+- Duration
+- Distraction count
+- Date labels
+
+UI DETAILS:
+- Rounded corners everywhere
+- Smooth transitions
+- Animated glow effects
+- Minimal borders
+- High readability
+- Elegant spacing
+- Responsive design for desktop and tablet
+- Use modern SaaS dashboard aesthetics similar to Linear, Raycast, Notion, and modern AI tools
+
+Typography:
+- Use clean sans-serif font like Inter or Poppins
+- Large bold headings
+- Soft gray secondary text
+- Bright white primary text
+
+Effects:
+- Background gradient lighting on edges
+- Floating neon blur effects
+- Glass cards with backdrop blur
+- Soft inner shadows
+- Animated button hover states
+
+The final interface should feel:
+- premium
+- modern
+- distraction-free
+- highly polished
+- futuristic but usable
+- like a real startup SaaS product

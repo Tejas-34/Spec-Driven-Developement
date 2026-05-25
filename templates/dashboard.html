@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | FocusSprint{% endblock %}
+{% block head %}
+<script defer src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}
+{% block content %}
+<section class="dashboard-topbar">
+    <div>
+        <span class="eyebrow">FocusSprint workspace</span>
+        <h1 id="greetingHeading">Good evening, <span class="accent-glow-purple">{{ current_user.username }}</span>! 👋</h1>
+        <p class="muted">Let's make today productive and meaningful.</p>
+    </div>
+    <div class="topbar-tools">
+        <button class="icon-button" type="button" aria-label="Search">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+        <div class="notifications-btn-wrap" style="position: relative; display: inline-block;">
+            <button class="icon-button" type="button" aria-label="Notifications">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            </button>
+            <span class="notification-badge-dot"></span>
+        </div>
+        <label class="header-switch-capsule" aria-label="Theme mode">
+            <input type="checkbox" data-theme-toggle>
+            <span class="theme-slider-capsule">
+                <svg class="sun-icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="moon-icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                <span class="theme-slider-knob"></span>
+            </span>
+        </label>
+    </div>
+</section>
+
+<section class="stats-grid">
+    <article class="glass-card stat-card glow-cyan">
+        <div class="stat-card-icon-col">
+            <div class="stat-icon-wrap cyan-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+        </div>
+        <div class="stat-card-text-col">
+            <small>Today's Focus Time</small>
+            {% set focus_mins = current_user.total_focus_minutes_today() %}
+            {% set hours = focus_mins // 60 %}
+            {% set mins = focus_mins % 60 %}
+            <strong>{{ hours }}h {{ mins }}m</strong>
+            <span class="stat-trend trend-up">
+                <span class="trend-val">+35m</span> from yesterday
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="arrow-up-right"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+            </span>
+        </div>
+    </article>
+    <article class="glass-card stat-card glow-orange">
+        <div class="stat-card-icon-col">
+            <div class="stat-icon-wrap orange-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+            </div>
+        </div>
+        <div class="stat-card-text-col">
+            <small>Current Streak</small>
+            <strong>{{ current_user.current_streak() }} Days</strong>
+            <span class="stat-trend">Keep it up! 🔥</span>
+        </div>
+    </article>
+    <article class="glass-card stat-card glow-blue">
+        <div class="stat-card-icon-col">
+            <div class="stat-icon-wrap blue-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+        </div>
+        <div class="stat-card-text-col">
+            <small>Completed Sessions</small>
+            <strong>{{ current_user.completed_sessions_count() }}</strong>
+            <span class="stat-trend trend-up">
+                <span class="trend-val">+4</span> this week
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="arrow-up-right"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+            </span>
+        </div>
+    </article>
+    <article class="glass-card stat-card glow-pink">
+        <div class="stat-card-icon-col">
+            <div class="stat-icon-wrap pink-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+        </div>
+        <div class="stat-card-text-col">
+            <small>Productivity Score</small>
+            <strong>{{ current_user.productivity_average()|round|int }}</strong>
+            <span class="stat-trend">Great Focus! 🚀</span>
+        </div>
+    </article>
+</section>
+
+<section class="dashboard-grid">
+    <article class="glass-card panel chart-panel span-2">
+        <div class="panel-head">
+            <div>
+                <h2>Weekly Focus Time</h2>
+                <p class="muted">A clean view of your deep-work rhythm across the week.</p>
+            </div>
+            <select id="chartRange" class="glass-select">
+                <option value="7">This Week</option>
+                <option value="14">Last 14 days</option>
+                <option value="30">Last 30 days</option>
+            </select>
+        </div>
+        <canvas id="weeklyChart" data-labels='{{ weekly_labels|tojson }}' data-values='{{ weekly_focus|tojson }}'></canvas>
+    </article>
+
+    <article class="glass-card panel motivation-panel">
+        <div class="panel-head">
+            <h2>Daily Motivation</h2>
+            <span class="quotes-icon-wrap" id="quoteButton" style="cursor: pointer;" title="Refresh quote">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" class="text-purple-glow"><path d="M11.192 15.757c0-.907-.188-1.754-.565-2.54a6.72 6.72 0 0 0-1.502-2.07 7.07 7.07 0 0 0-2.146-1.414 7.747 7.747 0 0 0-2.56-.505c-.09 0-.176.027-.26.082a.27.27 0 0 0-.115.228v1.657c0 .125.047.228.14.31a3.86 3.86 0 0 1 1.096.953c.313.41.47.886.47 1.43a2.62 2.62 0 0 0-.417 1.41c0 .765.26 1.405.783 1.92a2.537 2.537 0 0 0 1.879.773c.758 0 1.398-.258 1.92-.773a2.536 2.536 0 0 0 .782-1.92zm9 0c0-.907-.188-1.754-.565-2.54a6.72 6.72 0 0 0-1.502-2.07 7.07 7.07 0 0 0-2.146-1.414 7.747 7.747 0 0 0-2.56-.505c-.09 0-.176.027-.26.082a.27.27 0 0 0-.115.228v1.657c0 .125.047.228.14.31.53.535.897.853 1.096.953.313.41.47.886.47 1.43a2.62 2.62 0 0 0-.417 1.41c0 .765.26 1.405.783 1.92.522.515 1.148.773 1.879.773.758 0 1.398-.258 1.92-.773a2.536 2.536 0 0 0 .782-1.92z"/></svg>
+            </span>
+        </div>
+        <div class="mountain-silhouette" aria-hidden="true"></div>
+        <blockquote id="quoteCard" class="quote-card">Loading a fresh focus quote...</blockquote>
+        <p class="muted">Clear inputs. Calm interface. Better sessions.</p>
+    </article>
+
+    <article class="glass-card panel span-2" id="goals">
+        <div class="panel-head">
+            <h2>Recent Sessions</h2>
+            <a href="{{ url_for('main.history') }}" class="ghost-link header-view-all">
+                <span>View All</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 4px;"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Task</th>
+                        <th>Duration</th>
+                        <th>Distractions</th>
+                        <th>Score</th>
+                        <th>Date</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for session in recent_sessions %}
+                        <tr class="session-row">
+                            <td>
+                                <strong>{{ session.title }}</strong>
+                                <small>{{ session.category }}</small>
+                            </td>
+                            <td>{{ session.duration_minutes }} min</td>
+                            <td>{{ session.distraction_count }}</td>
+                            <td><span class="score-pill {% if session.productivity_score >= 50 %}score-good{% elif session.productivity_score >= 25 %}score-mid{% else %}score-low{% endif %}">{{ session.productivity_score }}</span></td>
+                            <td>{{ session.started_at.strftime("%d %b") }}</td>
+                            <td>
+                                <button class="action-dots-btn" type="button" aria-label="Actions">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                                </button>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="6">No sessions yet. Start one now.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </article>
+
+    <article class="glass-card panel next-session-panel">
+        <div class="panel-head">
+            <h2>Next Session</h2>
+            <span class="pill">{{ active_session.category if active_session else "DSA" }}</span>
+        </div>
+        <div class="next-session-grid">
+            <div class="next-session-copy">
+                <h3>{{ active_session.title if active_session else "DSA - Arrays & Hashing" }}</h3>
+                <div class="next-session-meta-row">
+                    <span class="meta-label">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        <span>{{ active_session.duration_minutes if active_session else 45 }} min</span>
+                    </span>
+                    <span class="meta-label text-purple">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                        <span>{{ active_session.category if active_session else "DSA" }}</span>
+                    </span>
+                </div>
+            </div>
+            <div class="next-session-timer">
+                <div class="timer-ring-wrapper">
+                    <svg class="progress-ring-svg" width="90" height="90" viewBox="0 0 100 100">
+                        <circle class="ring-track" cx="50" cy="50" r="42" stroke="rgba(255,255,255,0.06)" stroke-width="6" fill="none"/>
+                        <circle class="ring-fill-glowing" cx="50" cy="50" r="42" stroke="url(#cyan-glow-grad)" stroke-width="6" fill="none" stroke-dasharray="264" stroke-dashoffset="66" stroke-linecap="round"/>
+                        <defs>
+                            <linearGradient id="cyan-glow-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="var(--cyan)"/>
+                                <stop offset="100%" stop-color="var(--purple)"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <div class="timer-ring-text">
+                        <strong>{{ active_session.duration_minutes if active_session else 45 }}:00</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="next-session-footer">
+            {% if active_session %}
+                <a href="{{ url_for('session.active_session', session_id=active_session.id) }}" class="btn btn-primary btn-block gradient-btn">
+                    <span>Start Session</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                </a>
+            {% else %}
+                <a href="{{ url_for('session.create_session') }}" class="btn btn-primary btn-block gradient-btn">
+                    <span>Start Session</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                </a>
+            {% endif %}
+        </div>
+    </article>
+
+</section>
+{% endblock %}
