@@ -44,11 +44,7 @@ def register():
             db.session.add(new_user)
             db.session.commit()
             
-            # Seed mock focus data to showcase graphs beautifully
-            from seeder import seed_user_data
-            seed_user_data(new_user)
-            
-            flash('Registration successful! Your dashboard has been seeded with mock data so you can see analytics immediately.', 'success')
+            flash('Registration successful! You can now log in.', 'success')
             return redirect(url_for('auth.login'))
         except Exception as e:
             db.session.rollback()
